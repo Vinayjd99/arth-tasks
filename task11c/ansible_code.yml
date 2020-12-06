@@ -1,0 +1,45 @@
+- name: task 11.3
+  hosts: httpdwebserver
+  vars_files:
+    - var.yml
+  tasks:
+   - name: install httpd server
+     package:
+       name: httpd
+       state: present
+   
+   - name: create a directory for document root
+     file:
+       path: "{{ doc_root }}"
+       state: directory
+
+   - name: "copy conf file"
+     template:
+       dest: /etc/httpd/conf.d/
+       src: /root/task11c/vinay.conf
+     notify:
+     - Restart httpd service
+ 
+   - name: copy html file
+     copy:
+       src: /root/task11c/home.html
+       dest: /var/www/vinay/
+  
+   - name: starting httpd service
+     service:
+       name: httpd
+       state: started
+       enabled: yes
+
+   - name: adding firewall rule
+     firewalld:
+       port: "{{ port }}/tcp"
+       state: enabled
+       permanent: yes
+       immediate: yes
+
+  handlers:
+  - name: Restart httpd service
+    service:
+      name: httpd
+      state: restarted 
