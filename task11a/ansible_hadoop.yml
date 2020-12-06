@@ -1,0 +1,63 @@
+- name: install java and hadoop
+  hosts: all
+  
+  tasks:
+   
+  - name: copy java rpm file to managed nodes
+    copy:
+        src: /root/jdk-8u171-linux-x64.rpm 
+        dest: /root/
+ 
+  - name: copy hadoop rpm file to managed nodes
+    copy:
+        src: /root/hadoop-1.2.1-1.x86_64.rpm 
+        dest: /root/
+  
+  - name: install java
+    shell: "rpm -i jdk-8u171-linux-x64.rpm"
+
+  - name: install hadoop
+    shell: "rpm -i hadoop-1.2.1-1.x86_64.rpm --force"
+
+  - name: create directory for storage
+    file:
+      path: /volume
+      state: directory
+
+- name: namenode configuration
+  hosts: namenode
+  tasks:
+
+  - name: copy hdfs-site.xml file to namenode
+    copy:
+      src: /root/task11/hdfs-site.xml
+      dest: /etc/hadoop/
+
+  - name: copy core-site.xml file
+    copy:
+      src: /root/task11/core-site.xml
+      dest: /etc/hadoop/
+
+  - name: format the storage of namenode
+    shell: "echo Y | hadoop namenode -format"
+
+  - name: starting hadoop namenode
+    shell: "hadoop-daemon.sh start namenode"
+
+- name: datanode configuration
+  hosts: datanode
+  tasks:
+
+  - name: copy hdfs-site.xml file to datanode
+    copy:
+      src: /root/task11/datanode/hdfs-site.xml
+      dest: /etc/hadoop/
+
+  - name: copy core-site.xml file
+    copy:
+      src: /root/task11/core-site.xml
+      dest: /etc/hadoop/
+
+  - name: starting hadoop datanode
+    shell: "hadoop-daemon.sh start datanode"
+
